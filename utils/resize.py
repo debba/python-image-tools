@@ -25,10 +25,10 @@ def resize(image_path, width=0, height=0, image_folder=None):
         height = int(width * height_image / width_image)
 
     if width > width_image:
-        raise Exception(f"Current width {width} is greater than image width {width_image}")
+        width = width_image
 
     if height > height_image:
-        raise Exception(f"Current height {height} is greater than image height {height_image}")
+        height = height_image
 
     resized_image = img.resize((width, height))
     path = get_path(image_path, image_folder)
