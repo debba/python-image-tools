@@ -1,3 +1,5 @@
+import glob
+
 from PIL import Image
 import os
 
@@ -6,8 +8,7 @@ TMP_FOLDER = "./sample/tmp"
 
 def get_path(source_path, dest_folder=None):
     image_basename = os.path.basename(source_path)
-    path = dest_folder + "/" + image_basename
-    return source_path if dest_folder is None else path
+    return source_path if dest_folder is None else dest_folder + "/" + image_basename
 
 
 def resize(image_path, width=0, height=0, image_folder=None):
@@ -91,7 +92,7 @@ def get_crop_points(image_path, width, height, anchor_point='CC'):
 
 def crop(image_path, width, height, anchor_point='CC', image_folder=None):
     points = get_crop_points(image_path, width, height, anchor_point)
-    print(f'Selected points {points} from anchor point {anchor_point}')
+    print(f'Selected points {points} from anchor point {anchor_point}, path={image_path}')
 
     img = Image.open(image_path)
     cropped_image = img.crop(points)
@@ -101,8 +102,8 @@ def crop(image_path, width, height, anchor_point='CC', image_folder=None):
 
 
 def mask_resize(image_path, width, height, image_folder=None, anchor_point='CC'):
-    if width == 0 and height == 0:
-        raise Exception('Both width and height are auto! Wtf :)')
+    if width == 0 or height == 0:
+        raise Exception('Both width and height should be compiled! Wtf :)')
 
     print(f'Load image from {image_path}')
 
@@ -118,6 +119,21 @@ def mask_resize(image_path, width, height, image_folder=None, anchor_point='CC')
 
     definitive_path = crop(intermediate_path, width, height, anchor_point, image_folder)
 
-    '''os.remove(intermediate_path)'''
+    os.remove(intermediate_path)
 
     print(f'Saved definitive image in {definitive_path}')
+
+    return definitive_path
+
+
+def bulk_action(action, source, destination, attrs):
+    for file in glob.glob(f"{source}/*.jpg"):
+        single_action(action, file, destination, attrs)
+
+
+def single_action(action, source, destination, attrs):
+    if action == 'resize':
+        resize(image_path=source, image_folder=destination, width=attrs['width'], height=attrs['height'])
+    if action == 'mask_resize':
+        mask_resize(image_path=source, image_folder=destination, width=attrs['width'], height=attrs['height'],
+                    anchor_point=attrs['anchor_point'])
