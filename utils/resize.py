@@ -127,7 +127,8 @@ def mask_resize(image_path, width, height, image_folder=None, anchor_point='CC')
 
 
 def bulk_action(action, source, destination, attrs):
-    for file in glob.glob(f"{source}/*.jpg"):
+    files = [item for sublist in [glob.glob(source + ext) for ext in ["/*.jpg", "/*.png"]] for item in sublist]
+    for file in files:
         single_action(action, file, destination, attrs)
 
 
